@@ -1,7 +1,18 @@
 package Directory_Walker;
 
+/**
+ * Interface for iterating over nodes in a file system structure.
+ */
 public interface Iterator {
-    boolean hasNext(); // Check if there is a next element in the iteration
+    /**
+     * Checks if there is a next node in the iteration.
+     * @return true if a next node exists, false otherwise
+     */
+    boolean hasNext();
 
-    Node next(); // Get the next element in the iteration
+    /**
+     * Retrieves the next node in the iteration.
+     * @return the next node
+     */
+    Node next();
 }
