@@ -1,7 +1,6 @@
 package Directory_Walker;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class FileSystem {

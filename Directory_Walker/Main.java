@@ -2,7 +2,6 @@ package Directory_Walker;
 
 import java.util.Scanner;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 
 public class Main {
@@ -17,19 +16,16 @@ public class Main {
                     return;
                 }
             }
-            sc.close();
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            return;
         }
 
         SizeVisitor sizeVisitor = new SizeVisitor();
         fileSystem.getRoot().accept(sizeVisitor);
 
-        BigDecimal totalSize = sizeVisitor.getTotalSize();
-        totalSize = totalSize.setScale((totalSize.scale() <= 0) ? 0 : 1, RoundingMode.HALF_UP).stripTrailingZeros();
+        BigDecimal totalSize = sizeVisitor.getTotalSize().stripTrailingZeros();
 
-
-        System.out.println("total: " + totalSize + "KB");
+        System.out.println("total: " + totalSize.toPlainString() + "KB");
         fileSystem.printFileSystem();
     }
 }
