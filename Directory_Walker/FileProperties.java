@@ -13,4 +13,20 @@ public class FileProperties {
         this.owner = owner;
         this.group = group;
     }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public boolean isReadOnly() {
+        return isReadOnly;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public String getGroup() {
+        return group;
+    }
 }

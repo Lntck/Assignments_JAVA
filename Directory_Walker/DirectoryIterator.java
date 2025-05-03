@@ -1,12 +1,13 @@
 package Directory_Walker;
 
-import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Stack;
 
 public class DirectoryIterator implements Iterator {
-    private ArrayDeque<Node> stack;
+    private Stack<Node> stack;
 
     public DirectoryIterator(Directory directory) {
-        this.stack = new ArrayDeque<>();
+        this.stack = new Stack<>();
         this.stack.push(directory);
     }
 
@@ -23,9 +24,11 @@ public class DirectoryIterator implements Iterator {
 
         Node currentNode = stack.pop();
         if (currentNode instanceof Directory) {
-            Directory currentDirectory = (Directory) currentNode;
-            stack.addAll(currentDirectory.getDirectories());
-            stack.addAll(currentDirectory.getFiles());
+            ArrayList<Node> Childrens = ((Directory) currentNode).getChildren();
+
+            for(int i=Childrens.size()-1; i>=0; i--) {
+                stack.add(Childrens.get(i));
+            }
         }
         return currentNode;
     }

@@ -10,13 +10,12 @@ public class FileSystem {
     // For large-scale systems (>10K directories) or disk-based storage, better to use B-tree.
     private HashMap<Integer, Directory> hashMap;
 
-    private ArrayList<Directory> directories;
-    private ArrayList<File> files;
+    private Directory root;
 
     FileSystem() {
         this.hashMap = new HashMap<>();
-        this.directories = new ArrayList<>();
-        this.files = new ArrayList<>();
+        this.root = new Directory(".", 0, 0);
+        hashMap.put(0, root);
     }
 
     public boolean parseLine(String[] line) {
@@ -30,7 +29,6 @@ public class FileSystem {
                 if (line[curs].matches("\\d+")) { parent_id = Integer.parseInt(line[curs++]);}
                 String name = line[curs++];
 
-                System.out.println(id + " " + parent_id + " " + name);
                 createDirectory(id, parent_id, name);
             } else if (command.equals("FILE")) {
                 int id = Integer.parseInt(line[curs++]);
@@ -42,14 +40,11 @@ public class FileSystem {
                 String name = file.replaceFirst("[.][^.]+$", "");
                 String extension = file.substring(file.lastIndexOf('.') + 1);
 
-                System.out.println(id + " " + isReadOnly + " " + size + " " + name + " " + extension);
                 createFile(id, isReadOnly, owner, group, size, name, extension);
             } else {
-                System.out.println("Invalid command");
                 return false;
             }
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("Invalid number of elements in command");
             return false;
         }
         return true;
@@ -63,51 +58,38 @@ public class FileSystem {
         if (hashMap.containsKey(id)) {
             return;
         }
+
         Directory dir = new Directory(name, id, parent_id);
         hashMap.put(id, dir);
 
-        if (parent_id == 0) {
-            directories.add(dir);
-        } else {
-            Directory parent = findDirectory(parent_id);
-            if (parent == null) {
-                return;
-            }
-            parent.getDirectories().add(dir);
+        Directory parent = findDirectory(parent_id);
+        if (parent == null) {
+            return;
         }
+        parent.addChild(dir);
     }
 
-    public void createFile(int id, boolean isReadOnly, String owner, String group, BigDecimal size, String name, String extension) {
-        if (id != 0 && !hashMap.containsKey(id)) {
+    public void createFile(int parent_id, boolean isReadOnly, String owner, String group, BigDecimal size, String name, String extension) {
+        if (!hashMap.containsKey(parent_id)) {
             return;
         }
 
         FileProperties fileProperties = FilePropertiesFactory.getFileProperties(extension, isReadOnly, owner, group);
-        File file = new File(name, size, fileProperties);
+        File file = new File(parent_id, name, size, fileProperties);
 
-        if (id == 0) {
-            files.add(file);
-        } else {
-            Directory parent = findDirectory(id);
-            if (parent == null) {
-                return;
-            }
-            parent.getFiles().add(file);
+        Directory parent = findDirectory(parent_id);
+        if (parent == null) {
+            return;
         }
+        parent.addChild(file);
     }
 
     public void printFileSystem() {
-        for (Directory dir : directories) {
-            System.out.println("Directory: " + dir.getName());
-            for (File file : dir.getFiles()) {
-                System.out.println("  File: " + file.getName());
-            }
-            for (Directory subDir : dir.getDirectories()) {
-                System.out.println("  Subdirectory: " + subDir.getName());
-            }
-        }
-        for (File file : files) {
-            System.out.println("File: " + file.getName());
-        }
+        TreePrinter treePrinter = new TreePrinter();
+        treePrinter.printTree(root);
+    }
+
+    public Directory getRoot() {
+        return root;
     }
 }
